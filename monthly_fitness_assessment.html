@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monthly Fitness Assessment - Eric Diaz</title>
+    <style>
+        :root {
+            --primary: #1a2332;
+            --primary-light: #2a3848;
+            --accent: #ff6b35;
+            --accent-glow: #ff8c5f;
+            --success: #4caf50;
+            --text: #e8e8e8;
+            --text-muted: #a0a0a0;
+            --bg: #0d1117;
+            --bg-card: #161b22;
+            --bg-elevated: #1f2937;
+            --border: #30363d;
+            --baseline: #FFB84D;
+            --good: #4A90E2;
+            --excellent: #9B59B6;
+            --elite: #FF6B35;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 50%, rgba(255, 107, 53, 0.08) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            padding: 30px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-glow) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .stats-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        .nav-section {
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border: 1px solid var(--border);
+        }
+
+        .month-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .month-btn {
+            background: var(--bg-elevated);
+            border: 2px solid var(--border);
+            color: var(--text);
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .month-btn:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent);
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+        }
+
+        .month-btn.active {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-glow) 100%);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        .month-btn.completed {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+
+        .test-section {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid var(--border);
+        }
+
+        .test-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 25px;
+        }
+
+        .test-card {
+            background: var(--bg-elevated);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .test-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .test-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .test-info {
+            background: var(--bg);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .info-row {
+            display: flex;
+            padding: 5px 0;
+            font-size: 0.95rem;
+        }
+
+        .info-label {
+            color: var(--text-muted);
+            min-width: 120px;
+            font-weight: 600;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input[type="number"], textarea {
+            width: 100%;
+            background: var(--bg);
+            border: 2px solid var(--border);
+            color: var(--text);
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.2);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+            font-family: inherit;
+        }
+
+        .benchmark-bar {
+            height: 40px;
+            background: var(--bg);
+            border-radius: 20px;
+            position: relative;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .benchmark-section {
+            position: absolute;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .complete-btn {
+            background: linear-gradient(135deg, var(--success) 0%, #66bb6a 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .complete-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }
+
+        .guidelines {
+            background: var(--bg-card);
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            margin-bottom: 30px;
+        }
+
+        .guidelines h3 {
+            color: var(--accent);
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .guidelines ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .guidelines li {
+            padding: 8px 0;
+            color: var(--text-muted);
+            font-size: 1.05rem;
+        }
+
+        .progress-chart {
+            background: var(--bg-card);
+            padding: 30px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            margin-bottom: 30px;
+        }
+
+        .chart-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--text);
+        }
+
+        .result-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-left: 10px;
+        }
+
+        .badge-baseline { background: var(--baseline); color: #000; }
+        .badge-good { background: var(--good); color: white; }
+        .badge-excellent { background: var(--excellent); color: white; }
+        .badge-elite { background: var(--elite); color: white; }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .month-selector {
+                grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            }
+
+            .stat-value {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>💪 MONTHLY FITNESS ASSESSMENT</h1>
+            <div class="subtitle">Bodyweight Performance Tracker - Eric Diaz</div>
+        </header>
+
+        <div class="stats-dashboard">
+            <div class="stat-card">
+                <div class="stat-label">Assessments Done</div>
+                <div class="stat-value" id="totalTests">0</div>
+                <div style="color: var(--text-muted); font-size: 0.85rem;">of 12 months</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Current Trend</div>
+                <div class="stat-value" id="trendIndicator">--</div>
+                <div style="color: var(--text-muted); font-size: 0.85rem;">overall progress</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Best Test</div>
+                <div class="stat-value" id="bestTest">--</div>
+                <div style="color: var(--text-muted); font-size: 0.85rem;">performance level</div>
+            </div>
+        </div>
+
+        <div class="nav-section">
+            <div class="month-selector" id="monthSelector"></div>
+        </div>
+
+        <div class="guidelines">
+            <h3>Testing Guidelines</h3>
+            <ul id="guidelinesList"></ul>
+        </div>
+
+        <div id="testContent"></div>
+
+        <div class="progress-chart" id="progressChart" style="display: none;">
+            <h3 class="chart-title">Progress Over Time</h3>
+            <div id="chartContent"></div>
+        </div>
+    </div>
+
+    <script>
+        const TESTS = [
+            { name: 'Push-ups (max)', field: 'pushups', description: 'Standard form, chest to floor', scoring: 'Max reps in 2 min', notes: 'Stop at form breakdown', unit: 'reps', benchmarks: { baseline: [15,20], good: [25,35], excellent: [40,50], elite: 60 } },
+            { name: 'Pull-ups (max)', field: 'pullups', description: 'Dead hang to chin over bar', scoring: 'Track max reps', notes: 'Full extension each rep', unit: 'reps', benchmarks: { baseline: [3,5], good: [8,12], excellent: [15,20], elite: 25 } },
+            { name: 'Air Squats (max)', field: 'squats', description: 'Below parallel, arms extended', scoring: 'Max reps in 2 min', notes: 'Maintain tempo', unit: 'reps', benchmarks: { baseline: [30,40], good: [50,60], excellent: [70,85], elite: 100 } },
+            { name: 'Plank Hold', field: 'plank', description: 'Forearm plank, neutral spine', scoring: 'Time to failure (max 5 min)', notes: 'Stop at hip sag', unit: 'seconds', benchmarks: { baseline: [60,90], good: [120,180], excellent: [200,240], elite: 300 } },
+            { name: 'Burpees', field: 'burpees', description: 'Chest to deck, full extension', scoring: 'Max reps in 3 min', notes: 'No rest at top', unit: 'reps', benchmarks: { baseline: [20,25], good: [30,40], excellent: [45,55], elite: 60 } },
+            { name: 'Standing Broad Jump', field: 'jump', description: 'Two-foot takeoff and landing', scoring: 'Best of 3 attempts (inches)', notes: 'Measure heel to start line', unit: 'inches', benchmarks: { baseline: [48,60], good: [65,75], excellent: [78,84], elite: 90 } }
+        ];
+
+        const MONTHS = [
+            { id: 0, name: 'Feb 2026', date: '02/01/2026' },
+            { id: 1, name: 'Mar 2026', date: '03/03/2026' },
+            { id: 2, name: 'Apr 2026', date: '04/02/2026' },
+            { id: 3, name: 'May 2026', date: '05/02/2026' },
+            { id: 4, name: 'Jun 2026', date: '06/01/2026' },
+            { id: 5, name: 'Jul 2026', date: '07/01/2026' },
+            { id: 6, name: 'Aug 2026', date: '07/31/2026' },
+            { id: 7, name: 'Sep 2026', date: '08/30/2026' },
+            { id: 8, name: 'Oct 2026', date: '09/29/2026' },
+            { id: 9, name: 'Nov 2026', date: '10/29/2026' },
+            { id: 10, name: 'Dec 2026', date: '11/28/2026' },
+            { id: 11, name: 'Jan 2027', date: '12/28/2026' }
+        ];
+
+        const GUIDELINES = [
+            '• Conduct on same day each month (recommend 3-4 days post-rest)',
+            '• Complete all tests in one session, 3-5 min rest between tests',
+            '• Order: Jump → Pull-ups → Push-ups → Squats → Burpees → Plank',
+            '• Light warm-up: 5-10 min dynamic movement',
+            '• Hydrate 1-2 hours prior, avoid testing fasted',
+            '• Record exact reps/time, note any form degradation',
+            '• Track subjective effort (1-10 scale) in Notes column'
+        ];
+
+        let currentMonth = null;
+        let assessmentData = JSON.parse(localStorage.getItem('monthlyFitness')) || {};
+
+        function init() {
+            renderMonthSelector();
+            renderGuidelines();
+            updateStats();
+        }
+
+        function renderMonthSelector() {
+            const selector = document.getElementById('monthSelector');
+            selector.innerHTML = MONTHS.map(month => {
+                const isCompleted = assessmentData[month.id]?.completed;
+                return `
+                    <button 
+                        class="month-btn ${currentMonth === month.id ? 'active' : ''} ${isCompleted ? 'completed' : ''}"
+                        onclick="loadMonth(${month.id})"
+                    >
+                        ${month.name}
+                        ${isCompleted ? '✓' : ''}
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function renderGuidelines() {
+            document.getElementById('guidelinesList').innerHTML = 
+                GUIDELINES.map(g => `<li>${g}</li>`).join('');
+        }
+
+        function loadMonth(monthId) {
+            currentMonth = monthId;
+            const month = MONTHS[monthId];
+            
+            if (!assessmentData[monthId]) {
+                assessmentData[monthId] = {
+                    date: month.date,
+                    tests: {},
+                    generalNotes: '',
+                    completed: false
+                };
+            }
+
+            renderMonthSelector();
+            renderTests(monthId, month);
+        }
+
+        function renderTests(monthId, month) {
+            const content = document.getElementById('testContent');
+            const data = assessmentData[monthId];
+
+            content.innerHTML = `
+                <div class="test-section">
+                    <div class="test-title">${month.name} Assessment - ${month.date}</div>
+                    
+                    ${TESTS.map(test => {
+                        const testData = data.tests[test.field] || {};
+                        const performance = getPerformanceLevel(test, testData.result);
+                        
+                        return `
+                            <div class="test-card">
+                                <div class="test-header">
+                                    <div class="test-name">${test.name}</div>
+                                    ${performance ? `<span class="result-badge badge-${performance.toLowerCase()}">${performance}</span>` : ''}
+                                </div>
+                                
+                                <div class="test-info">
+                                    <div class="info-row">
+                                        <span class="info-label">Description:</span>
+                                        <span>${test.description}</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label">Scoring:</span>
+                                        <span>${test.scoring}</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label">Notes:</span>
+                                        <span>${test.notes}</span>
+                                    </div>
+                                </div>
+
+                                ${renderBenchmarkBar(test)}
+
+                                <div class="input-group">
+                                    <label class="input-label">Result (${test.unit})</label>
+                                    <input 
+                                        type="number" 
+                                        value="${testData.result || ''}"
+                                        onchange="updateTest(${monthId}, '${test.field}', 'result', this.value)"
+                                        placeholder="Enter your ${test.unit}"
+                                    >
+                                </div>
+
+                                <div class="input-group">
+                                    <label class="input-label">Test Notes (form, energy, etc.)</label>
+                                    <textarea 
+                                        onchange="updateTest(${monthId}, '${test.field}', 'notes', this.value)"
+                                        placeholder="How did it feel? Any form breakdown? Energy level?"
+                                    >${testData.notes || ''}</textarea>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+
+                    <div class="input-group" style="margin-top: 30px;">
+                        <label class="input-label">General Session Notes</label>
+                        <textarea 
+                            onchange="updateGeneralNotes(${monthId}, this.value)"
+                            placeholder="Overall session feel, sleep quality, stress levels..."
+                        >${data.generalNotes || ''}</textarea>
+                    </div>
+
+                    <button class="complete-btn" onclick="completeAssessment(${monthId})">
+                        ${data.completed ? '✓ Assessment Complete' : 'Mark Assessment Complete'}
+                    </button>
+                </div>
+            `;
+        }
+
+        function renderBenchmarkBar(test) {
+            const b = test.benchmarks;
+            return `
+                <div class="benchmark-bar">
+                    <div class="benchmark-section" style="left: 0%; width: 25%; background: var(--baseline);">Baseline<br>${Array.isArray(b.baseline) ? b.baseline.join('-') : b.baseline}</div>
+                    <div class="benchmark-section" style="left: 25%; width: 25%; background: var(--good);">Good<br>${Array.isArray(b.good) ? b.good.join('-') : b.good}</div>
+                    <div class="benchmark-section" style="left: 50%; width: 25%; background: var(--excellent);">Excellent<br>${Array.isArray(b.excellent) ? b.excellent.join('-') : b.excellent}</div>
+                    <div class="benchmark-section" style="left: 75%; width: 25%; background: var(--elite);">Elite<br>${b.elite}+</div>
+                </div>
+            `;
+        }
+
+        function getPerformanceLevel(test, result) {
+            if (!result) return null;
+            const val = parseFloat(result);
+            const b = test.benchmarks;
+            
+            if (val >= b.elite) return 'Elite';
+            if (Array.isArray(b.excellent) && val >= b.excellent[0]) return 'Excellent';
+            if (Array.isArray(b.good) && val >= b.good[0]) return 'Good';
+            if (Array.isArray(b.baseline) && val >= b.baseline[0]) return 'Baseline';
+            return 'Developing';
+        }
+
+        function updateTest(monthId, field, key, value) {
+            if (!assessmentData[monthId].tests[field]) {
+                assessmentData[monthId].tests[field] = {};
+            }
+            assessmentData[monthId].tests[field][key] = value;
+            saveData();
+            
+            // Re-render to update performance badge
+            if (key === 'result') {
+                loadMonth(monthId);
+            }
+        }
+
+        function updateGeneralNotes(monthId, value) {
+            assessmentData[monthId].generalNotes = value;
+            saveData();
+        }
+
+        function completeAssessment(monthId) {
+            assessmentData[monthId].completed = !assessmentData[monthId].completed;
+            saveData();
+            updateStats();
+            renderMonthSelector();
+            loadMonth(monthId);
+        }
+
+        function updateStats() {
+            const completed = Object.values(assessmentData).filter(a => a.completed).length;
+            document.getElementById('totalTests').textContent = completed;
+            
+            // Calculate trend
+            const recentScores = Object.values(assessmentData)
+                .filter(a => a.completed)
+                .slice(-3);
+            
+            if (recentScores.length >= 2) {
+                document.getElementById('trendIndicator').textContent = '↗';
+            } else {
+                document.getElementById('trendIndicator').textContent = '--';
+            }
+
+            // Find best performance
+            let bestLevel = 'Baseline';
+            Object.values(assessmentData).forEach(month => {
+                TESTS.forEach(test => {
+                    const result = month.tests[test.field]?.result;
+                    if (result) {
+                        const level = getPerformanceLevel(test, result);
+                        if (level === 'Elite') bestLevel = 'Elite';
+                        else if (level === 'Excellent' && bestLevel !== 'Elite') bestLevel = 'Excellent';
+                        else if (level === 'Good' && !['Elite', 'Excellent'].includes(bestLevel)) bestLevel = 'Good';
+                    }
+                });
+            });
+            document.getElementById('bestTest').textContent = bestLevel;
+        }
+
+        function saveData() {
+            localStorage.setItem('monthlyFitness', JSON.stringify(assessmentData));
+        }
+
+        init();
+    </script>
+</body>
+</html>
